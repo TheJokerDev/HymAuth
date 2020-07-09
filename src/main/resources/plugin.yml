@@ -1,0 +1,21 @@
+name: HymAuth
+version: 1.0
+author: TheJokerDev
+main: me.TheJokerDev.HymAuth.Main
+
+commands:
+  hymauth:
+    description: DevInfo
+    usage: </command>
+  resetPIN:
+    description: ResetYourPin
+    usage: </command>
+  setpin:
+    description: Sets the PIN of a user
+    usage: </command>
+  setJoinLoc:
+    description: Sets the locatio for logging in
+    usage: </command>
+  pin:
+    description: Login via command
+    usage: </command>

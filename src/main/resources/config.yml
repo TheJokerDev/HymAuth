@@ -1,0 +1,124 @@
+# /---------------Made by TheJokerDev----------------\
+# |  #  #  #   # ##    ##  ####  #   #  #####  #  #  |
+# |  #  #   # #  # #  # #  #  #  #   #    #    #  #  |
+# |  ####    #   #  ##  #  ####  #   #    #    ####  |
+# |  #  #    #   #      #  #  #  #   #    #    #  #  |
+# |  #  #    #   #      #  #  #  #####    #    #  #  |
+# /---------------Made by TheJokerDev----------------\
+
+# MySQL-Settings
+MySQL:
+  UseMySQL: false
+  IP: "localhost"
+  DB-Name: "PINs"
+  Username: "root"
+  Password: "YourPW"
+
+# Cada X minutos se subirán los datos a la MYSQL, obvio, si está activo.
+AutoLoad: 5
+
+# Si está habilitado, el jugador podrá iniciar sesión con "/PIN pin"
+# para que los jugadores que se conectan a través de un teléfono inteligente también puedan iniciar sesión
+# !! ¡Esto facilitará el inicio de sesión de "Login-Crackers"!
+EnablePinCommand: false
+
+#Guardar IP para logueo automático
+SaveIP: true
+# La cantidad de tiempo en MIN de cuánto tiempo debe permanecer guardada la IP
+# Use -1 para tiempo infinito [= 1 día] (recomendado)
+SaveDuration: -1
+
+# Agregar comandos que aún deberían estar permitidos
+# por ejemplo /register & /login desde AuthMe
+BypassCommands:
+  - '/login'
+  - '/register'
+
+# Si tiene un servidor de inicio de sesión especial en su red bungeecord
+# puede especificar el nombre del servidor donde debe estar el jugador
+# conectado si inicia sesión correctamente
+# Establecer en "none" para deshabilitar
+LobbyServer: "none"
+
+#¿Debería haber efectos de sonido?
+Sounds: true
+
+# La longitud óptima es 4 o 5 y también es válida 3 y 6
+# ¡No recomiendo usar una longitud que no esté entre 3 y 6!
+PIN-Length: 6
+
+# Si está habilitado, solo los usuarios con el permiso "hymauth.login" deben ingresar un pin
+PermsLogin: false
+
+# Si está habilitado, esto teletransportará al jugador a una ubicación establecida (/setJoinLoc)
+# mientras inicia sesión.
+HideLocation: false
+
+# Si está habilitado, el jugador estará en modo espectador mientras inicia sesión
+SpectatorOnLogin: false
+
+# El jugador será expulsado después de x segundos cuando no haya iniciado sesión
+# Establecer en -1 para deshabilitar esto
+KickAfterSec:
+  Seconds: 20
+  KickMessage: "&cNo te logueaste pasando 20 segs!"
+
+# El jugador será pateado cuando escriba el código x veces mal
+# Establecer en -1 para deshabilitar esto
+KickAfterTries:
+  Tries: 4
+  KickMessage: "&cNo te pudiste loguear en 4 intentos!"
+
+# El comando se ejecutará después de x segundos, por ejemplo, Prohibir [%IP% o %PLAYER%]
+# Establecer en -1 para deshabilitar esto
+CommandAfterTries:
+  Tries: 12
+  Command: "banip %IP% Te equicaste 12 veces en ingresa el pin!"
+
+Messages-Chat:
+  AdminPINReset:
+    User: '&cTu PIN debe ser reseteado por un admin'
+    Admin: '&cEl PIN de %PLAYER% se reseteó'
+    HasNoPin: '&cEste jugador no tiene un PIN'
+  AdminPINSet:
+    User: '&cTu PIN ha sido cambiado'
+    Admin: '&cEl PIN de %PLAYER% cambió a %PIN%'
+    NoValidPIN: '&cEse no es un PIN válido!'
+  PinCommand: '&cSi te logueaste vía ChatClien, usa /pin PIN para ingresar'
+  ConfReload: '&aLa configuración ha sido reiniciada'
+  NoPerms: "&cNo tienes permisos"
+Messages-Title:
+  Register:
+    Line1: '&c&lRegistro'
+    Line2: '&cClick en los items para poner PIN &oej.: 123456'
+    Stay: 70
+  Registered:
+    Line1: '&a&l¡Bienvenido!'
+    Line2: '&aTe registraste correctamente! &cTu PIN&8: &7%PIN%'
+    Stay: 70
+  Loggedin:
+    Line1: '&a&l¡Bienvenido de vuelta!'
+    Line2: '&aPIN correcto!'
+    Stay: 70
+  AutoLoggedin:
+    Line1: '&a&l¡Bienvenido de vuelta!'
+    Line2: '&aHas sido logueado automáticamente'
+    Stay: 70
+  WrongPIN:
+    Line1: '&c&lPIN incorrecto'
+    Line2: '&7&oPIN no correcto, intenta de nuevo'
+    Stay: 70
+Messages-Items:
+  ShowPIN: '&cMostrar PIN'
+  PIN: '&c&lPIN &8&l%PIN%'
+  HiddenNumber: '&7&l*'
+  Numbers:
+    1: '&f&l1'
+    2: '&f&l2'
+    3: '&f&l3'
+    4: '&f&l4'
+    5: '&f&l5'
+    6: '&f&l6'
+    7: '&f&l7'
+    8: '&f&l8'
+    9: '&f&l9'
