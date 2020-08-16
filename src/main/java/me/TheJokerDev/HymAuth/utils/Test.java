@@ -81,14 +81,14 @@ public class Test {
         for(var5 = 0; var5 != 36; var5 = var5 + 1) {
             ItemStack var6 = var3.getItem(var5);
             if (var6 == null) {
-                var4.setItem(var5, (ItemStack)null);
+                var4.setItem(var5, null);
             } else {
                 var4.setItem(var5, var6.clone());
             }
         }
 
-        if (!Events.get().pInvs.containsKey(var1.getName())) {
-            Events.get().pInvs.put(var1.getName(), var4);
+        if (!new Events().pInvs.containsKey(var1.getName())) {
+            new Events().pInvs.put(var1.getName(), var4);
         }
 
         for(var5 = 0; var5 != 36; var5 = var5 + 1) {
@@ -101,7 +101,7 @@ public class Test {
 
         var3.setItem(19, this.getItem(Material.NAME_TAG, 1, 0, Main.get().getMSG(2, "PIN")));
 
-        for(int var9 = Events.get().cLength; var9 > 0; --var9) {
+        for(int var9 = new Events().cLength; var9 > 0; --var9) {
             var3.setItem(20 + var9, this.getItem(Material.STAINED_GLASS_PANE, 1, 0, "§7"));
         }
 

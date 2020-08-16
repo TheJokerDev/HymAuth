@@ -3,6 +3,7 @@ package me.TheJokerDev.HymAuth;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import me.TheJokerDev.HymAuth.utils.Test;
+import me.TheJokerDev.HymAuth.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -24,9 +25,8 @@ import java.io.File;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-@SuppressWarnings("all")
 public class Main extends JavaPlugin implements Listener {
-    private static Main instance = null;
+    public static Main i;
     public Test vInterface;
     String ver = "";
     File confFile = new File(this.getDataFolder().getPath(), "config.yml");
@@ -37,11 +37,11 @@ public class Main extends JavaPlugin implements Listener {
     boolean joinLoc;
     boolean pinCommand;
     static String homeServer = "none";
-    public Map<String, String> ecode;
-    public Map<String, String> sCodes;
+    public HashMap<String, String> ecode;
+    public HashMap<String, String> sCodes;
     public static List<String> bpCommands;
     public static String INV_TITLE = "§c§lLogueo§8: Introduce el PIN";
-    Map<String, String> ips;
+    HashMap<String, String> ips;
     public List<String> logingin;
     public int cLength;
 
@@ -57,11 +57,11 @@ public class Main extends JavaPlugin implements Listener {
     }
 
     public static Main get() {
-        return instance;
+        return i;
     }
 
     public void onEnable() {
-        instance = this;
+        i = this;
         if (!this.confFile.exists()) {
             this.saveResource("config.yml", true);
         }
@@ -82,7 +82,7 @@ public class Main extends JavaPlugin implements Listener {
             }
 
             try {
-                MySQLManager.get().checkDB("PinCodes", "CREATE TABLE `PinCodes` (`id` int NOT NULL AUTO_INCREMENT,`uuid` TEXT NULL DEFAULT NULL,`pin` TEXT NULL DEFAULT NULL,PRIMARY KEY (id))");
+                MySQLManager.get().checkDB("PinCodes", "CREATE TABLE `PinCodes` (`id` int NOT NULL AUTO_INCREMENT,`uuid` TEXT NULL DEFAULT NULL,`pin` TEXT NULL DEFAULT NULL,PRIMARY KEY (id),`logged` TEXT NULL DEFAULT FALSE)");
                 ResultSet var1 = MySQLManager.mConn.prepareStatement("SELECT * FROM `PinCodes`").executeQuery();
 
                 while(var1.next()) {
@@ -99,7 +99,7 @@ public class Main extends JavaPlugin implements Listener {
 
             while(var4.hasNext()) {
                 String var2 = (String)var4.next();
-                this.sCodes.put(var2, this.fCodes.getString(var2));
+                this.sCodes.put(var2, Utils.decode(this.fCodes.getString(var2)));
             }
         }
 
@@ -117,7 +117,7 @@ public class Main extends JavaPlugin implements Listener {
 
         System.out.println("Hecho!");
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
-        this.getServer().getPluginManager().registerEvents(Events.get(), this);
+        this.getServer().getPluginManager().registerEvents(new Events(), this);
         this.getServer().getPluginManager().registerEvents(this, this);
         Bukkit.getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
             public void run() {
@@ -129,7 +129,7 @@ public class Main extends JavaPlugin implements Listener {
                                 sCodes.put(var1.getString("uuid"), var1.getString("pin"));
                             }
                         } else {
-                            System.out.println("PRECAUCIÓn! Fallo en guardar los PINs en MySQL");
+                            System.out.println("PRECAUCIÓN! Fallo en guardar los PINs en MySQL");
                         }
                     }
                 } catch (SQLException var2) {
@@ -142,7 +142,7 @@ public class Main extends JavaPlugin implements Listener {
 
         while(var4.hasNext()) {
             Player var6 = (Player)var4.next();
-            Events.get().onJoin(new PlayerJoinEvent(var6, (String)null));
+            new Events().onJoin(new PlayerJoinEvent(var6, (String)null));
         }
 
     }
@@ -197,7 +197,7 @@ public class Main extends JavaPlugin implements Listener {
 
                 if (var4.length == 1) {
                     if (var4[0].equals(this.sCodes.get(var1.getName().toLowerCase()))) {
-                        Events.get().login((Player)var1);
+                        new Events().login((Player)var1);
                         var1.sendMessage(this.getMSG(1, "Loggedin.Line1"));
                     } else {
                         var1.sendMessage(this.getMSG(1, "WrongPIN.Line1"));
@@ -242,7 +242,7 @@ public class Main extends JavaPlugin implements Listener {
                 if (var1.hasPermission("hymauth.admin.setpin")) {
                     try {
                         Integer.valueOf(var4[1]);
-                        if (var4[1].length() != Events.get().cLength) {
+                        if (var4[1].length() != new Events().cLength) {
                             Integer.valueOf("NotAnInt:D");
                         }
                     } catch (Exception var7) {
@@ -344,11 +344,23 @@ public class Main extends JavaPlugin implements Listener {
                 var4.printStackTrace();
             }
         } else {
-            this.fCodes.set(var1, var2);
+            this.fCodes.set(var1, Utils.encode(var2));
             this.saveCode();
         }
 
         this.sCodes.put(var1, var2);
+    }
+    public void saveLoginStatus(String var1, boolean var2) {
+        if (this.conf.getBoolean("MySQL.UseMySQL", false)) {
+            try {
+                ResultSet var3 = MySQLManager.mConn.prepareStatement("SELECT * FROM `PinCodes` WHERE `uuid` = '" + var1 + "'").executeQuery();
+                if (!var3.next()) {
+                    MySQLManager.mConn.prepareStatement("INSERT INTO `PinCodes` (`uuid`, `logged`) VALUES ('" + var1 + "','" + var2 + "')").execute();
+                }
+            } catch (SQLException var4) {
+                var4.printStackTrace();
+            }
+        };
     }
 
     public void preLoginScreen(Player var1, boolean var2) {
@@ -366,15 +378,15 @@ public class Main extends JavaPlugin implements Listener {
             var3.clear(var5);
         }
 
-        if (!Events.get().pInvs.containsKey(var1.getName().toLowerCase())) {
-            Events.get().pInvs.put(var1.getName().toLowerCase(), var4);
+        if (!new Events().pInvs.containsKey(var1.getName().toLowerCase())) {
+            new Events().pInvs.put(var1.getName().toLowerCase(), var4);
         }
 
         if (var2) {
             Location var9 = this.lm.getLoc("HideLocation");
             if (this.joinLoc && var9 != null) {
-                if (!Events.get().pLocs.containsKey(var1.getName())) { 
-                    Events.get().pLocs.put(var1.getName(), var1.getLocation().clone());
+                if (!new Events().pLocs.containsKey(var1.getName())) {
+                    new Events().pLocs.put(var1.getName(), var1.getLocation().clone());
                 }
 
                 var1.teleport(var9);
@@ -382,8 +394,8 @@ public class Main extends JavaPlugin implements Listener {
         }
 
         if (this.conf.getBoolean("SpectatorOnLogin", false)) {
-            if (!Events.get().pGM.containsKey(var1.getName())) {
-                Events.get().pGM.put(var1.getName(), var1.getGameMode());
+            if (!new Events().pGM.containsKey(var1.getName())) {
+                new Events().pGM.put(var1.getName(), var1.getGameMode());
             }
 
             var1.setGameMode(GameMode.SPECTATOR);

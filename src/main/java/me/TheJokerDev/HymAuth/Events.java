@@ -1,6 +1,7 @@
 package me.TheJokerDev.HymAuth;
 
 import me.TheJokerDev.HymAuth.utils.Test;
+import me.TheJokerDev.HymAuth.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -20,39 +21,29 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-@SuppressWarnings("all")
 public class Events implements Listener {
-    private static Events instance = null;
-    private Main pl = Main.get();
-    public Map<String, Inventory> pInvs = new HashMap();
-    public Map<String, Location> pLocs = new HashMap();
-    public Map<String, GameMode> pGM = new HashMap();
-    public Map<String, Integer> tries = new HashMap();
-    public Map<String, Integer> loginID = new HashMap();
+    //Save system to keep the Inventory, Location, GameMode, Tries of Login and ID of Login.
+    public final Map<String, Inventory> pInvs = new HashMap();
+    public final Map<String, Location> pLocs = new HashMap();
+    public final Map<String, GameMode> pGM = new HashMap();
+    public final Map<String, Integer> tries = new HashMap();
+    public final Map<String, Integer> loginID = new HashMap();
     public int cLength = 6;
 
-    public static Events get() {
-        if (instance == null) {
-            instance = new Events();
-        }
-
-        return instance;
-    }
-
     public Events() {
-        this.cLength = pl.conf.getInt("PIN-Length", 4);
+        this.cLength = Main.i.conf.getInt("PIN-Length", 4);
     }
 
     private void showPin(Player var1) {
-        if (this.pl.ecode.containsKey(var1.getName().toLowerCase())) {
-            String var2 = (String)this.pl.ecode.get(var1.getName().toLowerCase());
+        if (Main.i.ecode.containsKey(var1.getName().toLowerCase())) {
+            String var2 = (String)Main.i.ecode.get(var1.getName().toLowerCase());
             Object var3 = null;
             Object var4 = null;
             Object var5 = null;
 
             for(int var6 = var2.length() - 1; var6 >= 0; --var6) {
-                int var7 = Integer.valueOf(String.valueOf(var2.charAt(var6)));
-                var1.getInventory().setItem(21 + var6, this.getItem(Material.STAINED_GLASS_PANE, var7, 14, "§8§l" + var7));
+                int var7 = var2.charAt(var6);
+                var1.getInventory().setItem(21 + var6, this.getItem(Material.STAINED_GLASS_PANE, var7, 14, Utils.ct("&8&l"+var7)));
             }
         }
 
@@ -82,23 +73,23 @@ public class Events implements Listener {
                         var2.playSound(var2.getLocation(), Main.get().getSound(1), 1.0F, 1.0F);
                     }
 
-                    if (this.pl.ecode.containsKey(var2.getName().toLowerCase())) {
-                        String var4 = (String)this.pl.ecode.get(var2.getName().toLowerCase());
+                    if (Main.i.ecode.containsKey(var2.getName().toLowerCase())) {
+                        String var4 = (String)Main.i.ecode.get(var2.getName().toLowerCase());
                         Integer var5 = var4.length();
                         Integer var6 = 0;
                         var4 = var4 + String.valueOf(var1.getCurrentItem().getAmount());
-                        this.pl.ecode.remove(var2.getName().toLowerCase());
-                        this.pl.ecode.put(var2.getName().toLowerCase(), var4);
+                        Main.i.ecode.remove(var2.getName().toLowerCase());
+                        Main.i.ecode.put(var2.getName().toLowerCase(), var4);
                         if (var5 < this.cLength - 1) {
                             var2.getInventory().setItem(21 + var5, this.getItem(Material.BARRIER, 1, 0, Main.get().getMSG(2, "HiddenNumber")));
-                        } else if (this.pl.sCodes.containsKey(var2.getName().toLowerCase())) {
-                            if (var4.equals(this.pl.sCodes.get(var2.getName().toLowerCase()))) {
+                        } else if (Main.i.sCodes.containsKey(var2.getName().toLowerCase())) {
+                            if (var4.equals(Main.i.sCodes.get(var2.getName().toLowerCase()))) {
                                 this.login(var2);
                             } else {
-                                this.pl.ecode.remove(var2.getName().toLowerCase());
+                                Main.i.ecode.remove(var2.getName().toLowerCase());
                                 var2.closeInventory();
                                 new Test().sendTitle(var2, Main.get().getMSG(1, "WrongPIN.Line1"), Main.get().getMSG(1, "WrongPIN.Line2"), 10, Main.get().conf.getInt("WrongPIN.Stay", 70), 10);
-                                if (this.pl.conf.getBoolean("Sounds")) {
+                                if (Main.i.conf.getBoolean("Sounds")) {
                                     var2.playSound(var2.getLocation(), Main.get().getSound(3), 1.0F, 1.0F);
                                 }
 
@@ -109,26 +100,27 @@ public class Events implements Listener {
 
                                 this.tries.remove(var2.getName().toLowerCase());
                                 this.tries.put(var2.getName().toLowerCase(), var7);
-                                if (this.pl.conf.getInt("KickAfterTries.Tries", -1) != -1 && this.pl.conf.getInt("KickAfterTries.Tries", -1) == var7) {
+                                if (Main.i.conf.getInt("KickAfterTries.Tries", -1) != -1 && Main.i.conf.getInt("KickAfterTries.Tries", -1) == var7) {
                                     this.tries.remove(var2.getName().toLowerCase());
-                                    var2.kickPlayer(this.pl.conf.getString("KickAfterTries.KickMessage").replace('&', '§'));
-                                } else if (this.pl.conf.getInt("CommandAfterTries.Tries", -1) != -1 && this.pl.conf.getInt("CommandAfterTries.Tries", -1) == var7) {
-                                    Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), this.pl.conf.getString("CommandAfterTries.Command").replaceAll("%PLAYER%", var2.getName()).replaceAll("%IP%", var2.getAddress().toString().split("/")[var2.getAddress().toString().split("/").length - 1].split(":")[0]));
+                                    var2.kickPlayer(Main.i.conf.getString("KickAfterTries.KickMessage").replace('&', '§'));
+                                } else if (Main.i.conf.getInt("CommandAfterTries.Tries", -1) != -1 && Main.i.conf.getInt("CommandAfterTries.Tries", -1) == var7) {
+                                    Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), Main.i.conf.getString("CommandAfterTries.Command").replaceAll("%PLAYER%", var2.getName()).replaceAll("%IP%", var2.getAddress().toString().split("/")[var2.getAddress().toString().split("/").length - 1].split(":")[0]));
                                 }
                             }
                         } else {
-                            this.pl.savePin(var2.getName().toLowerCase(), var4);
-                            this.pl.logingin.remove(var2.getName().toLowerCase());
+                            Main.i.savePin(var2.getName().toLowerCase(), var4);
+                            Main.i.logingin.remove(var2.getName().toLowerCase());
                             var2.closeInventory();
                             new Test().sendTitle(var2, Main.get().getMSG(1, "Registered.Line1"), Main.get().getMSG(1, "Registered.Line2").replace("%PIN%", var4), 20, Main.get().conf.getInt("Registered.Stay", 70), 20);
-                            this.pl.saveCode();
-                            this.resetInv(var2);
+                            Main.i.saveCode();
+                            resetInv(var2);
+                            Main.i.saveLoginStatus(var2.getName().toLowerCase(), true);
                             var2.setWalkSpeed(0.2F);
                             Main.sendToServer(var2);
                         }
                     } else {
                         var2.getInventory().setItem(21, this.getItem(Material.BARRIER, 1, 0, Main.get().getMSG(2, "HiddenNumber")));
-                        this.pl.ecode.put(var2.getName().toLowerCase(), String.valueOf(var1.getCurrentItem().getAmount()));
+                        Main.i.ecode.put(var2.getName().toLowerCase(), String.valueOf(var1.getCurrentItem().getAmount()));
                     }
                 }
             }
@@ -143,19 +135,19 @@ public class Events implements Listener {
 
     @EventHandler
     public void onClose(final InventoryCloseEvent var1) {
-        if (Main.get().logingin.contains(var1.getPlayer().getName().toLowerCase())) {
+        final String var2 = var1.getPlayer().getName().toLowerCase();
+        if (Main.get().logingin.contains(var2)) {
             var1.getInventory().clear();
-            if (this.pl.ecode.containsKey(var1.getPlayer().getName().toLowerCase())) {
-                this.pl.ecode.remove(var1.getPlayer().getName().toLowerCase());
+            if (Main.i.ecode.containsKey(var2)) {
+                Main.i.ecode.remove(var2);
             }
 
-            final String var2 = var1.getPlayer().getName().toLowerCase();
-            if (this.pl.logingin.contains(var1.getPlayer().getName().toLowerCase())) {
-                Bukkit.getScheduler().scheduleAsyncDelayedTask(this.pl, new Runnable() {
+            if (Main.i.logingin.contains(var2)) {
+                Bukkit.getScheduler().scheduleAsyncDelayedTask(Main.i, new Runnable() {
                     Player p = (Player)var1.getPlayer();
 
                     public void run() {
-                        if (this.p.isOnline() && Events.this.pl.logingin.contains(var2)) {
+                        if (this.p.isOnline() && Main.i.logingin.contains(var2)) {
                             new Test().getLoginScreen(this.p);
                         }
 
@@ -175,8 +167,9 @@ public class Events implements Listener {
         }
 
         this.resetInv(var1.getPlayer());
-        if (this.pl.ecode.containsKey(var1.getPlayer().getName().toLowerCase())) {
-            this.pl.ecode.remove(var1.getPlayer().getName().toLowerCase());
+        if (Main.i.ecode.containsKey(var1.getPlayer().getName().toLowerCase())) {
+            Main.i.ecode.remove(var1.getPlayer().getName().toLowerCase());
+            Main.i.saveLoginStatus(var1.getPlayer().getName().toLowerCase(), false);
         }
 
         var1.getPlayer().setWalkSpeed(0.2F);
@@ -203,13 +196,13 @@ public class Events implements Listener {
             boolean var2 = true;
             boolean var3 = true;
             int var4 = 10;
-            if (!this.pl.sCodes.containsKey(var1.getPlayer().getName().toLowerCase())) {
+            if (!Main.i.sCodes.containsKey(var1.getPlayer().getName().toLowerCase())) {
                 new Test().sendTitle(var1.getPlayer(), Main.get().getMSG(1, "Register.Line1"), Main.get().getMSG(1, "Register.Line2"), 5, Main.get().conf.getInt("Register.Stay", 70), 5);
                 var4 = Main.get().conf.getInt("Register.Stay", 70);
                 var3 = false;
             }
 
-            if (this.pl.ips.containsKey(var1.getPlayer().getName().toLowerCase()) && this.pl.conf.getBoolean("SaveIP") && var1.getPlayer().getAddress().getHostString().toString().equals(this.pl.ips.get(var1.getPlayer().getName().toLowerCase()))) {
+            if (Main.i.ips.containsKey(var1.getPlayer().getName().toLowerCase()) && Main.i.conf.getBoolean("SaveIP") && var1.getPlayer().getAddress().getHostString().toString().equals(Main.i.ips.get(var1.getPlayer().getName().toLowerCase()))) {
                 new Test().sendTitle(var1.getPlayer(), Main.get().getMSG(1, "AutoLoggedin.Line1"), Main.get().getMSG(1, "AutoLoggedin.Line2"), 5, Main.get().conf.getInt("AutoLoggedin.Stay", 70), 5);
                 var2 = false;
                 Bukkit.getScheduler().scheduleSyncDelayedTask(Main.get(), new Runnable() {
@@ -225,31 +218,31 @@ public class Events implements Listener {
                 }
 
                 final String var5 = var1.getPlayer().getName().toLowerCase();
-                if (this.pl.conf.getInt("KickAfterSec.Seconds") != -1) {
-                    this.loginID.put(var5, Bukkit.getScheduler().scheduleSyncDelayedTask(this.pl, new Runnable() {
+                if (Main.i.conf.getInt("KickAfterSec.Seconds") != -1) {
+                    this.loginID.put(var5, Bukkit.getScheduler().scheduleSyncDelayedTask(Main.i, new Runnable() {
                         public void run() {
                             if (Events.this.loginID.containsKey(var5)) {
                                 Events.this.loginID.remove(var5);
                             }
 
-                            if (Bukkit.getOfflinePlayer(var5).isOnline() && Events.this.pl.logingin.contains(var5)) {
-                                Bukkit.getPlayer(var5).kickPlayer(Events.this.pl.conf.getString("KickAfterSec.KickMessage").replace('&', '§'));
+                            if (Bukkit.getOfflinePlayer(var5).isOnline() && Main.i.logingin.contains(var5)) {
+                                Bukkit.getPlayer(var5).kickPlayer(Main.i.conf.getString("KickAfterSec.KickMessage").replace('&', '§'));
                             }
 
                         }
-                    }, (long)(20 * this.pl.conf.getInt("KickAfterSec.Seconds"))));
+                    }, (long)(20 * Main.i.conf.getInt("KickAfterSec.Seconds"))));
                 }
 
                 Main.get().preLoginScreen(var1.getPlayer(), false);
-                if (!this.pl.logingin.contains(var1.getPlayer().getName().toLowerCase())) {
-                    this.pl.logingin.add(var1.getPlayer().getName().toLowerCase());
+                if (!Main.i.logingin.contains(var1.getPlayer().getName().toLowerCase())) {
+                    Main.i.logingin.add(var1.getPlayer().getName().toLowerCase());
                 }
 
-                Bukkit.getScheduler().scheduleAsyncDelayedTask(this.pl, new Runnable() {
+                Bukkit.getScheduler().scheduleAsyncDelayedTask(Main.i, new Runnable() {
                     Player p = var1.getPlayer();
 
                     public void run() {
-                        if (Events.this.pl.logingin.contains(this.p.getName().toLowerCase())) {
+                        if (Main.i.logingin.contains(this.p.getName().toLowerCase())) {
                             new Test().getLoginScreen(this.p);
                         }
 
@@ -298,30 +291,30 @@ public class Events implements Listener {
     }
 
     public void login(Player var1) {
-        this.pl.ecode.remove(var1.getName().toLowerCase());
-        this.pl.logingin.remove(var1.getName().toLowerCase());
+        Main.i.ecode.remove(var1.getName().toLowerCase());
+        Main.i.logingin.remove(var1.getName().toLowerCase());
         var1.closeInventory();
         new Test().sendTitle(var1, Main.get().getMSG(1, "Loggedin.Line1"), Main.get().getMSG(1, "Loggedin.Line2"), 10, Main.get().conf.getInt("Loggedin.Stay", 70), 10);
         var1.setWalkSpeed(0.2F);
-        if (this.pl.ips.containsKey(var1.getName().toLowerCase())) {
-            this.pl.ips.remove(var1.getName().toLowerCase());
+        if (Main.i.ips.containsKey(var1.getName().toLowerCase())) {
+            Main.i.ips.remove(var1.getName().toLowerCase());
         }
 
         this.resetInv(var1);
-        this.pl.ips.put(var1.getName().toLowerCase(), var1.getAddress().getHostString().toString());
+        Main.i.ips.put(var1.getName().toLowerCase(), var1.getAddress().getHostString().toString());
         final String var2 = var1.getName().toLowerCase();
-        if (this.pl.conf.getInt("SaveDuration", -1) != -1) {
-            Bukkit.getScheduler().scheduleSyncDelayedTask(this.pl, new Runnable() {
+        if (Main.i.conf.getInt("SaveDuration", -1) != -1) {
+            Bukkit.getScheduler().scheduleSyncDelayedTask(Main.i, new Runnable() {
                 public void run() {
-                    if (Events.this.pl.ips.containsKey(var2)) {
-                        Events.this.pl.ips.remove(var2);
+                    if (Main.i.ips.containsKey(var2)) {
+                        Main.i.ips.remove(var2);
                     }
 
                 }
-            }, (long)(1200 * this.pl.conf.getInt("SaveDuration")));
+            }, (long)(1200 * Main.i.conf.getInt("SaveDuration")));
         }
 
-        if (this.pl.conf.getBoolean("Sounds")) {
+        if (Main.i.conf.getBoolean("Sounds")) {
             var1.playSound(var1.getLocation(), Main.get().getSound(2), 1.0F, 1.0F);
         }
 
@@ -349,7 +342,7 @@ public class Events implements Listener {
     @EventHandler
     public void onMove(PlayerMoveEvent var1) {
         Player var2 = var1.getPlayer();
-        if (this.pl.logingin.contains(var2.getName().toLowerCase())) {
+        if (Main.i.logingin.contains(var2.getName().toLowerCase())) {
             Material var3 = var1.getFrom().getBlock().getType();
             Location var4;
             if (var3 != Material.WATER && var3 != Material.STATIONARY_WATER) {
@@ -377,7 +370,7 @@ public class Events implements Listener {
 
     @EventHandler
     public void onChat(PlayerChatEvent var1) {
-        if (this.pl.logingin.contains(var1.getPlayer().getName().toLowerCase())) {
+        if (Main.i.logingin.contains(var1.getPlayer().getName().toLowerCase())) {
             var1.setCancelled(true);
         }
 
@@ -385,7 +378,7 @@ public class Events implements Listener {
 
     @EventHandler
     public void onIPickUp(PlayerPickupItemEvent var1) {
-        if (this.pl.logingin.contains(var1.getPlayer().getName().toLowerCase())) {
+        if (Main.i.logingin.contains(var1.getPlayer().getName().toLowerCase())) {
             var1.setCancelled(true);
         }
 
@@ -393,7 +386,7 @@ public class Events implements Listener {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent var1) {
-        if (this.pl.logingin.contains(var1.getPlayer().getName().toLowerCase())) {
+        if (Main.i.logingin.contains(var1.getPlayer().getName().toLowerCase())) {
             var1.setCancelled(true);
         }
 
@@ -401,14 +394,14 @@ public class Events implements Listener {
 
     @EventHandler
     public void onCommand(final PlayerCommandPreprocessEvent var1) {
-        if (this.pl.logingin.contains(var1.getPlayer().getName().toLowerCase())) {
+        if (Main.i.logingin.contains(var1.getPlayer().getName().toLowerCase())) {
             if (var1.getMessage().startsWith("/pin") || Main.isAllowed(var1.getMessage())) {
-                Bukkit.getScheduler().scheduleAsyncDelayedTask(this.pl, new Runnable() {
+                Bukkit.getScheduler().scheduleAsyncDelayedTask(Main.i, new Runnable() {
                     Player p = var1.getPlayer();
 
                     public void run() {
-                        if (Events.this.pl.logingin.contains(this.p.getName().toLowerCase())) {
-                            Main.get().vInterface.getLoginScreen(this.p);
+                        if (Main.i.logingin.contains(this.p.getName().toLowerCase())) {
+                            new Test().getLoginScreen(this.p);
                         }
 
                     }
@@ -423,7 +416,7 @@ public class Events implements Listener {
 
     @EventHandler
     public void onDamage(EntityDamageEvent var1) {
-        if (var1.getEntity() instanceof Player && this.pl.logingin.contains(var1.getEntity().getName().toLowerCase())) {
+        if (var1.getEntity() instanceof Player && Main.i.logingin.contains(var1.getEntity().getName().toLowerCase())) {
             var1.setCancelled(true);
         }
 

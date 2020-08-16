@@ -23,7 +23,7 @@ public class MySQLManager {
         try {
             mConn = DriverManager.getConnection("jdbc:mysql://" + var1 + ":3306/" + var2 + "?verifyServerCertificate=false&useSSL=false&autoReconnect=true&useUnicode=true&characterEncoding=utf8", var3, var4);
         } catch (Exception var7) {
-            System.out.println("\n \n \nMySQL-Error\nCould not connect to MySQL-Server!\nDisabeling plugin!\nCheck your config.yml \nDiscord: https://discord.gg/ycDG6rS \n \n");
+            System.out.println("\n \n \nMySQL-Error\nCould not connect to MySQL-Server!\nDisabling plugin!\nCheck your config.yml \nDiscord: https://discord.gg/ycDG6rS \n \n");
             return false;
         }
 
